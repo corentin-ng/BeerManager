@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BeerManager</string>
+    <string name="beer_manager">Beer Manager !!!</string>
 </resources>
