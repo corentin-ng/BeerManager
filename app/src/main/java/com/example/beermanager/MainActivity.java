@@ -1,6 +1,5 @@
 package com.example.beermanager;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -8,7 +7,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -18,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "BeerManagerLogs";
 
     BottomNavigationView btm_view;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private void getFragment(Fragment fragment) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = manager.beginTransaction();
-        fragmentTransaction.replace(R.id.container, fragment); // replace et pas add pour éviter les crash
+        fragmentTransaction.replace(R.id.container, fragment); // replace et pas add pour éviter les crashs
         fragmentTransaction.commit();
 
     }

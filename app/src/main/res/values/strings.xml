@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">BeerManager</string>
     <string name="beer_manager">Beer Manager !!!</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>hello_tauxalcool
+    <string name="hello_tauxalcool">Hello taux alcool fragment</string>
+    <string name="hello_conversion">Hello conversion fragment</string>
+    <string name="hello_densite">Hello densite fragment</string>
+    <string name="hello_embouteillage">Hello embouteillage fragment</string>
+    <string name="hello_rendement">Hello rendement fragment</string>
+    <string name="hello_volumes">Hello volumes fragment</string>
+    <string name="hello_cuvees">Hello cuvees fragment</string>
+    <string name="hello_lexique">Hello lexique fragment</string>
+    <string name="hello_recettes">Hello recette fragment</string>
 </resources>
