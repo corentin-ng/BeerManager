@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/back"
+        android:icon="@drawable/abc_vector_test"
+        android:title="Retour" />
+
     <item
         android:id="@+id/outils"
         android:icon="@drawable/ic_baseline_build_24"
         android:title="Les Outils" />
+
     <item
         android:id="@+id/brasserie"
         android:icon="@drawable/ic_baseline_wine_bar_24"

@@ -35,7 +35,7 @@ public class Outils extends Fragment implements View.OnClickListener {
         Button tauxAlcool = (Button) view.findViewById(R.id.tauxalcool);
         tauxAlcool.setOnClickListener(this);
 
-        Button rendement = (Button) view.findViewById(R.id.rendement);
+        Button rendement = (Button) view.findViewById(R.id.recipes);
         rendement.setOnClickListener(this);
 
         Button densite = (Button) view.findViewById(R.id.densite);
@@ -115,7 +115,7 @@ public class Outils extends Fragment implements View.OnClickListener {
             case R.id.tauxalcool:
                 getFragment(new TauxAlcool());
                 break;
-            case R.id.rendement:
+            case R.id.recipes:
                 getFragment(new Rendement());
                 break;
             case R.id.densite:

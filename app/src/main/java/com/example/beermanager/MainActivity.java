@@ -23,10 +23,8 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"On create " + getLocalClassName());
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle("Outils");
 
-        getFragment(new Outils());
+        setContentView(R.layout.activity_main);
 
         btm_view = findViewById(R.id.bottom_view);
 
@@ -47,10 +45,14 @@ public class MainActivity extends AppCompatActivity {
                 getFragment(new Ressources()); // replace fragment cf getFragment implémenté plus bas
 
                 Toast.makeText(MainActivity.this, "Ressources selectionné", Toast.LENGTH_SHORT).show(); //PopUp du de l'icone selectionnée
-            }
+            }else if (item.getItemId() == R.id.back){
+            getSupportActionBar().setTitle("back");
+            getFragment(new Ressources()); // replace fragment cf getFragment implémenté plus bas
+
+            Toast.makeText(MainActivity.this, "Ressources selectionné", Toast.LENGTH_SHORT).show(); //PopUp du de l'icone selectionnée
+        }
             return false;
         });
-
 
     }
 
