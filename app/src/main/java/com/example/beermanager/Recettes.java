@@ -37,6 +37,7 @@ public class Recettes extends Fragment implements View.OnClickListener {
 
         View view = inflater.inflate(R.layout.fragment_recettes,container, false);
 
+        // Instanciation des boutons et textView de la layout
         urlRecetteEditText = (EditText) view.findViewById(R.id.urlRecette);
 
         Button brewdogUrl = (Button) view.findViewById(R.id.brewdogUrl);
@@ -108,6 +109,7 @@ public class Recettes extends Fragment implements View.OnClickListener {
         Intent intent;
         switch(id){
             case R.id.brewdogUrl:
+                // Lancement du navigateur et ouverture du site brewdogrecipes.com pour sélectionner une recette
                 Log.i(TAG, "on Click open Brewdog - " + getClass().getSimpleName());
                 // Le site est HS depuis le 12/01/2021 mais ça marchait avant :'(
                 Uri uri = Uri.parse("https://brewdogrecipes.com");
@@ -116,22 +118,30 @@ public class Recettes extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.recipes:
+                // Récupération de l'url de la recette collée par l'utilisateur
                 Log.i(TAG, "on Click Recipe - " + getClass().getSimpleName());
 
                 String urlRecette   = urlRecetteEditText.getText().toString();
 
                 Log.i(TAG, "on Click Recipe - getUrl : " + urlRecette);
 
+                // Préparation du fragment pour collecter et afficher la recette sélectionnée
                 Fragment AffichageRecette = new AffichageRecette();
+
+                // Passage de l'url de la recette au fragment
                 Bundle args = new Bundle();
                 if (urlRecette.equals("") ) {
+                    // Pour palier la défaillance du site web mais pour conserver la demo,
+                    // un fichier stocké dans les assests sera utilisé
+                    // En fonctionnement normal, l'absence d'url n'ouvre pas le fragment
                     args.putString("urlRecette","fichierDemo");
                 }else {
                     args.putString("urlRecette", urlRecette);
                 }
                 AffichageRecette.setArguments(args);
 
-                FragmentManager manager =  getParentFragmentManager();;
+                // Lancement du fragment
+                FragmentManager manager = getParentFragmentManager();
                 FragmentTransaction fragmentTransaction = manager.beginTransaction();
                 fragmentTransaction.replace(R.id.container,AffichageRecette);
                 fragmentTransaction.commit();

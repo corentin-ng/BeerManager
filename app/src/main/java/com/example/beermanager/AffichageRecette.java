@@ -48,14 +48,14 @@ import java.util.ArrayList;
 public class AffichageRecette extends Fragment {
 
     private static final String TAG = "BeerManagerLogs";
-    private static String urlRecette = null;
+    private static String urlRecette = null; // url de la page html de la recette envoyée par le fragment Recettes
 
-    private long downloadId; //id du fichier téléchargé
-    private String fileUrl = "";
-    private TextView txt;
+    private long downloadId;        //id du fichier téléchargé
+    private String fileUrl = "";    // url du fichier xml de la recette (différent de la page html)
+    private TextView txt;           // affichage de la recette collectée
 
-    private final static int REQUEST_CODE=1;
-    private DownloadManager downloadManager;
+    private final static int REQUEST_CODE=1;    // Demande des autorisations
+    private DownloadManager downloadManager;    // Déclaration du downloadManager pour le téléchargement de fichiers
 
 
     public AffichageRecette() {
@@ -67,6 +67,7 @@ public class AffichageRecette extends Fragment {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         if (getArguments() != null) {
+            // récupération de l'url de la recette
             urlRecette = getArguments().getString("urlRecette");
             Log.i(TAG, "urlRcette" + urlRecette + getClass().getSimpleName());
         }
@@ -80,25 +81,31 @@ public class AffichageRecette extends Fragment {
         Log.i(TAG, "onCreateView txt - " + txt);
 
         if(urlRecette.equals("fichierDemo")){
-            parseXMLFichierDemo(); // Erreur dans lérécupération du fichier
+            // Redirection vers un parser dédié au fichier démo stocké dans les assets
+            parseXMLFichierDemo(); // Erreur dans la récupération du fichier
             Log.i(TAG, "onCreateView fichierDemo - " + getClass().getSimpleName());
         } else {
-            // parseXML();
-            // Request permission needed for the fragment
+            // Demande des permissions requises pour le fragment
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
 
-            //catching download complete events from android download manager which broadcast message
+            // Interception des events de téléchargements de l'android download manager via les messages broadcast
             requireActivity().registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+            // Récupération de l'url html de la recette
             URI uri = null;
             try {
                 uri = new URI(urlRecette);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
+
+            // Récupération du slug de la recette depuis l'url html et reconstitution de l'url du xml
             String path = uri.getPath();
             String recipeSlug = path.substring(path.lastIndexOf('/') + 1);
             fileUrl = "https://brewdogrecipes.com/beerxml/" + recipeSlug + ".xml";
             Log.i(TAG, "onCreateView fileUrl - " + getClass().getSimpleName() + " - " + fileUrl);
+
+            // Lancement du téléchargement
             try {
                 getRecipeFromUrl();
             } catch (IOException e) {
@@ -163,7 +170,7 @@ public class AffichageRecette extends Fragment {
     }
 
     private void getRecipeFromUrl() throws IOException {
-
+        // Méthode de téléchargement du xml via le download et de stockage dans le répertoire public du téléphone
         File file=new File(getActivity().getExternalFilesDir(null),"recettes");
         DownloadManager.Request request = null;
         String fileName = URLUtil.guessFileName(fileUrl, null, MimeTypeMap.getFileExtensionFromUrl(fileUrl));
@@ -180,9 +187,10 @@ public class AffichageRecette extends Fragment {
             ;
 
             //Enqueue a new download and same the referenceId
-            downloadManager= (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);      //for Fragment= getActivity.getSystemService();
+            downloadManager= (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
             downloadId = downloadManager.enqueue(request);
 
+            // Utilisation de différentes variables pour suivre le téléchargement
             boolean finishDownload = false;
             int progress = -1;
             int status = 0;
@@ -203,16 +211,11 @@ public class AffichageRecette extends Fragment {
                             if (total >= 0) {
                                 final long downloaded = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                                 progress = (int) ((downloaded * 100L) / total);
-                                // if you use downloadmanger in async task, here you can use like this to display progress.
-                                // Don't forget to do the division in long to get more digits rather than double.
-                                //  publishProgress((int) ((downloaded * 100L) / total));
                             }
                             break;
                         }
                         case DownloadManager.STATUS_SUCCESSFUL: {
                             progress = 100;
-                            // if you use aysnc task
-                            // publishProgress(100);
                             finishDownload = true;
                             break;
                         }
@@ -225,7 +228,7 @@ public class AffichageRecette extends Fragment {
         }
     }
 
-    //check if download complete
+    // Vérification de la fin du téléchargement du fichier souhaité
     private final BroadcastReceiver onDownloadComplete=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -234,6 +237,7 @@ public class AffichageRecette extends Fragment {
                 downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                 Log.i(TAG, "File received : " + downloadId);
 
+                // A la fin du téléchargement, lancement du traitement du fichier
                 parseXmlDownloadedFile(downloadId);
             }
         }
@@ -251,9 +255,7 @@ public class AffichageRecette extends Fragment {
         if (cursor.moveToFirst()) {
             int downloadStatus = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
             String downloadLocalUri = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-//            String downloadMimeType = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE));
             if ((downloadStatus == DownloadManager.STATUS_SUCCESSFUL) && downloadLocalUri != null) {
-//                openDownloadedAttachment(context, Uri.parse(downloadLocalUri), downloadMimeType);
                 Log.i(TAG, "Launching xml parser on downloaded file : " + Uri.parse(downloadLocalUri).toString());
                 parseXML(Uri.parse(downloadLocalUri));
             }
@@ -261,19 +263,23 @@ public class AffichageRecette extends Fragment {
         cursor.close();
     }
 
-    // POur utiliser un fichier en dur
+    // Xml parser pour utiliser un fichier stocké dans les assets (Démo)
     private void parseXMLFichierDemo() {
         XmlPullParserFactory parserFactory;
         try {
             Log.i(TAG, "create parserXml - " + getClass().getSimpleName() );
 
+            // Déclaration d'un parser xml
             parserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = parserFactory.newPullParser();
+
+            // Récupération de l'asset dans un inputstream
             InputStream is = getActivity().getAssets().open("punkipa");
             Log.i(TAG, "create parseXMLFichierDemo - " + getClass().getSimpleName() );
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(is, null);
 
+            // Lancement du parser sur l'inputstream
+            parser.setInput(is, null);
             processParsing(parser);
 
         } catch (XmlPullParserException e) {
@@ -284,18 +290,23 @@ public class AffichageRecette extends Fragment {
         }
     }
 
+    // Xml parser pour utiliser un fichier téléchargé
     private void parseXML(Uri uri) {
         XmlPullParserFactory parserFactory;
         try {
             Log.i(TAG, "create parserXml - " + getClass().getSimpleName() );
 
+            // Déclaration d'un parser xml
             parserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = parserFactory.newPullParser();
+
+            // Récupération duf fichier téléchargé dans un inputstream
             InputStream is = getActivity().getContentResolver().openInputStream(uri);
             Log.i(TAG, "create parserXml - " + getClass().getSimpleName() );
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(is, null);
 
+            // Lancement du parser sur l'inputstream
+            parser.setInput(is, null);
             processParsing(parser);
 
         } catch (XmlPullParserException e) {
@@ -306,38 +317,46 @@ public class AffichageRecette extends Fragment {
         }
     }
 
+    // Traitement du XML pour collecter les donéne et les stockées dans des java beans
     private void processParsing(XmlPullParser parser) throws IOException, XmlPullParserException{
         Log.i(TAG, "process parserXml - " + getClass().getSimpleName() );
-        ArrayList<Recipe> recipes = new ArrayList<>();
-        int eventType = parser.getEventType();
 
-        Recipe currentRecipe = null;
-        Yeast currentYeast = null;
-        Hop currentHop = null;
-        Fermentable currentFermentable = null;
+        // Déclaration des variables pour collecter les attributs des recettes
+        ArrayList<Recipe> recipes = new ArrayList<>();  // Liste de recette de bières
+        Recipe currentRecipe = null;                    // Recette en cours
+        Yeast currentYeast = null;                      // Levure de la recette en cours
+        Hop currentHop = null;                          // Houblon dela recette en cours
+        Fermentable currentFermentable = null;          // Malt la recette en cours
+
+        // Utilisation d'une pile pour garder en mémoire l'arborescence du xml
+        // et gérer les champs ayant le même intitulé mais pour des objets différents (ex NAME)
         ArrayDeque<String> lifo = new ArrayDeque<>(); //https://www.happycoders.eu/java/queue-deque-stack-ultimate-guide/#Java_Deque_Example
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            String eltName = null;
+        // Traitement des balises
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {   // Lecture du xml tant qu'il n'est pas fini
+            String eltName = null; // Initialisation de la valeur de la balise en cours
 
             switch (eventType) {
-                case XmlPullParser.START_TAG:
-                    eltName = parser.getName();
-                    String parent = "";
+                case XmlPullParser.START_TAG:   // Balise ouvrante
+                    eltName = parser.getName(); // Valeur de la balise en cours
+                    String parent = "";         // Initialisation de la valeur de la balise parente
                     Log.i(TAG, "XmlParser START lifo / eltName / value : " + lifo + " / " + eltName);
 
                     if (lifo.size() > 0) {
-                        parent = lifo.getFirst();
+                        parent = lifo.getFirst(); // Valeur de la balise parente
                     }
-                    lifo.addFirst(eltName);
+                    lifo.addFirst(eltName);       // Ajout de la balise en cours dans la pile
 
                     if ("RECIPE".equals(eltName)) {
-                        currentRecipe = new Recipe();
-                        recipes.add(currentRecipe);
+                        currentRecipe = new Recipe();   // Création d'une nouvelle recette si balise ouvrante
+                        recipes.add(currentRecipe);     // Ajout de la recette la la liste de recette
+
+                        // Traitement de la branche RECIPE
                     } else if (currentRecipe != null && "RECIPE".equals(parent) ) {
                         if ("NAME".equals(eltName)) {
-                            currentRecipe.name = parser.nextText();
-                            lifo.removeFirst();
+                            currentRecipe.name = parser.nextText();     // Champ NAME d'une recette
+                            lifo.removeFirst();                         // Suppression de NAME de la pile
                         } else if ("TYPE".equals(eltName)) {
                             currentRecipe.type = parser.nextText();
                             lifo.removeFirst();
@@ -350,17 +369,21 @@ public class AffichageRecette extends Fragment {
                         }
                     }
 
+                    // Traitement de la branche STYLE
                     if (currentRecipe != null && "STYLE".equals(parent) && "NAME".equals(eltName)) {
                         currentRecipe.style = parser.nextText();
                         lifo.removeFirst();
                     }
 
+                    // Traitement des branches FERMENTABLE
                     if (currentRecipe != null && "FERMENTABLE".equals(eltName)) {
                         if (currentRecipe.fermentables == null) {
-                            currentRecipe.fermentables = new ArrayList<>();
+                            currentRecipe.fermentables = new ArrayList<>(); // Création d'une nouvelle liste de malt si 1er malt de la recette
                         }
-                        currentFermentable = new Fermentable();
+                        currentFermentable = new Fermentable();             // Création d'une nouveau malt et ajout à la recette
                         currentRecipe.fermentables.add(currentFermentable);
+
+                        // Traitement d'une branche FERMENTABLE
                     } else if (currentFermentable != null && "FERMENTABLE".equals(parent) ) {
                         if ("NAME".equals(eltName)) {
                             currentFermentable.name = parser.nextText();
@@ -380,12 +403,15 @@ public class AffichageRecette extends Fragment {
                         }
                     }
 
+                    // Traitement des branches HOP
                     if (currentRecipe != null && "HOP".equals(eltName)) {
                         if (currentRecipe.hops == null) {
-                            currentRecipe.hops = new ArrayList<>();
+                            currentRecipe.hops = new ArrayList<>(); // Création d'une nouvelle liste de houblons si 1er houblon de la recette
                         }
                         currentHop = new Hop();
-                        currentRecipe.hops.add(currentHop);
+                        currentRecipe.hops.add(currentHop);         // Création d'un nouveau houblon et ajout à la recette
+
+                    // Traitement d'une branche HOP
                     } else if (currentHop != null && "HOP".equals(parent) ) {
                         if ("NAME".equals(eltName)) {
                             currentHop.name = parser.nextText();
@@ -408,12 +434,15 @@ public class AffichageRecette extends Fragment {
                         }
                     }
 
+                    // Traitement des branches YEAST
                     if (currentRecipe != null && "YEAST".equals(eltName)) {
                         if (currentRecipe.yeasts == null) {
-                            currentRecipe.yeasts = new ArrayList<>();
+                            currentRecipe.yeasts = new ArrayList<>();   // Création d'une nouvelle liste de levures si 1ere levure de la recette
                         }
                         currentYeast = new Yeast();
-                        currentRecipe.yeasts.add(currentYeast) ;
+                        currentRecipe.yeasts.add(currentYeast) ;        // Création d'une nouvelle levure et ajout à la recette
+
+                    // Traitement d'une branche HOP
                     } else if (currentYeast != null && "YEAST".equals(parent) ) {
                         if ("NAME".equals(eltName)) {
                             currentYeast.name = parser.nextText();
@@ -432,20 +461,20 @@ public class AffichageRecette extends Fragment {
                     break;
 
                 case XmlPullParser.END_TAG:
-//                    eltName = parser.getName();
-                    Log.i(TAG, "XmlParser END element removed : " + lifo.pollFirst());
+                    Log.i(TAG, "XmlParser END element removed : " + lifo.pollFirst()); // Dépilement de la balise si elle n'a pas été ajoutées
                     break;
             }
-            eventType = parser.next();
+            eventType = parser.next();  // Passage à la balise suivante
         }
         Log.i(TAG, "XmlParser finished");
-        printRecipes(recipes);
+        printRecipes(recipes);          // lancement de l'affichage des recettes collectées
     }
 
     private void printRecipes(ArrayList<Recipe> recipes) {
         StringBuilder builder = new StringBuilder();
         Log.i(TAG, "print parserXml - " + getClass().getSimpleName() );
 
+        // Boucles pour l'affichage de chaque recette de la liste avec ses différents ingrédients
         for (Recipe recipe : recipes) {
             builder.append(recipe.name).append("\n").
                     append(recipe.type).append("\n").
@@ -481,7 +510,7 @@ public class AffichageRecette extends Fragment {
             }
 
         }
-        txt.setText(builder.toString());
+        txt.setText(builder.toString());        // Affichage des recettes
     }
 
 }
