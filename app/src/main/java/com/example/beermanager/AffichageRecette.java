@@ -80,7 +80,10 @@ public class AffichageRecette extends Fragment {
         Log.i(TAG, "onCreateView txt - " + txt);
 
         if(urlRecette.equals("fichierDemo")){
-            //        parseXML();
+            parseXMLFichierDemo(); // Erreur dans lérécupération du fichier
+            Log.i(TAG, "onCreateView fichierDemo - " + getClass().getSimpleName());
+        } else {
+            // parseXML();
             // Request permission needed for the fragment
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
 
@@ -102,14 +105,6 @@ public class AffichageRecette extends Fragment {
                 e.printStackTrace();
                 Log.i(TAG, "onCreateView - getRecipeFromUrl failed : " + e);
             }
-        } else {
-//            Uri uri2 = Uri.parse("file:///android_asset/punkipa");
-
-//            Uri uri2 = Uri.parse("android.resource://com.example.beermanager/punkipa");
-
-            parseXMLFichierDemo(); // Erreur dans lérécupération du fichier
-            Log.i(TAG, "onCreateView fichierDemo - " + getClass().getSimpleName());
-          //  Uri.parse(urlRecette);
         }
         return view ;
     }
@@ -171,7 +166,6 @@ public class AffichageRecette extends Fragment {
 
         File file=new File(getActivity().getExternalFilesDir(null),"recettes");
         DownloadManager.Request request = null;
-
         String fileName = URLUtil.guessFileName(fileUrl, null, MimeTypeMap.getFileExtensionFromUrl(fileUrl));
 
         try {
@@ -240,7 +234,6 @@ public class AffichageRecette extends Fragment {
                 downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                 Log.i(TAG, "File received : " + downloadId);
 
-//                openDownloadedAttachment(context, downloadId);
                 parseXmlDownloadedFile(downloadId);
             }
         }
@@ -326,7 +319,6 @@ public class AffichageRecette extends Fragment {
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             String eltName = null;
-
 
             switch (eventType) {
                 case XmlPullParser.START_TAG:
@@ -489,7 +481,6 @@ public class AffichageRecette extends Fragment {
             }
 
         }
-
         txt.setText(builder.toString());
     }
 

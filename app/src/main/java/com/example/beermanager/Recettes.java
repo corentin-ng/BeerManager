@@ -44,8 +44,6 @@ public class Recettes extends Fragment implements View.OnClickListener {
 
         Button recipes = (Button) view.findViewById(R.id.recipes);
         recipes.setOnClickListener(this);
-            // Inflate the layout for this fragment
-
         return view;
         }
 
@@ -103,7 +101,6 @@ public class Recettes extends Fragment implements View.OnClickListener {
             Log.i(TAG, "on detach " + getClass().getSimpleName());
         }
 
-
     @Override
     public void onClick(View v) {
         Log.i(TAG, "onClick " + getClass().getSimpleName());
@@ -127,10 +124,10 @@ public class Recettes extends Fragment implements View.OnClickListener {
 
                 Fragment AffichageRecette = new AffichageRecette();
                 Bundle args = new Bundle();
-                if (urlRecette != "") {
-                    args.putString("urlRecette", urlRecette);
-                }else {
+                if (urlRecette.equals("") ) {
                     args.putString("urlRecette","fichierDemo");
+                }else {
+                    args.putString("urlRecette", urlRecette);
                 }
                 AffichageRecette.setArguments(args);
 
@@ -138,12 +135,6 @@ public class Recettes extends Fragment implements View.OnClickListener {
                 FragmentTransaction fragmentTransaction = manager.beginTransaction();
                 fragmentTransaction.replace(R.id.container,AffichageRecette);
                 fragmentTransaction.commit();
-//
-//                    intent = new Intent(this, RecipeActivity.class);
-//                    Intent intent = new Intent(view.getContext(), FragmentGreen.class);
-//                    intent.putExtra("urlRecette", urlRecette);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//                    startActivity(intent);
              break;
         }
  }

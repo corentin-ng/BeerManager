@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "BeerManagerLogs";
 
-    BottomNavigationView btm_view;
+    BottomNavigationView btm_view; // Déclaration NavBar de l'appli
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         btm_view = findViewById(R.id.bottom_view);
 
-        //lambda
+        //lambda gestion de la navBar
         btm_view.setOnNavigationItemSelectedListener(item -> {
             if(item.getItemId() == R.id.outils){
                 getSupportActionBar().setTitle("Outils");// replace fragment cf getFragment implémenté plus bas
@@ -45,12 +45,15 @@ public class MainActivity extends AppCompatActivity {
                 getFragment(new Ressources()); // replace fragment cf getFragment implémenté plus bas
 
                 Toast.makeText(MainActivity.this, "Ressources selectionné", Toast.LENGTH_SHORT).show(); //PopUp du de l'icone selectionnée
-            }else if (item.getItemId() == R.id.back){
-            getSupportActionBar().setTitle("back");
-            getFragment(new Ressources()); // replace fragment cf getFragment implémenté plus bas
-
-            Toast.makeText(MainActivity.this, "Ressources selectionné", Toast.LENGTH_SHORT).show(); //PopUp du de l'icone selectionnée
-        }
+            }
+            //TODO bouton back ne fonctionne pas je le supprime de la navBar
+//            else if (item.getItemId() == R.id.back){
+//
+//            getSupportActionBar().setTitle("back");
+//            getFragment(new Ressources()); // replace fragment cf getFragment implémenté plus bas
+//
+//            Toast.makeText(MainActivity.this, "Ressources selectionné", Toast.LENGTH_SHORT).show(); //PopUp du de l'icone selectionnée
+//        }
             return false;
         });
 
@@ -86,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"On restart " + getLocalClassName());
     }
 
+    // Méthode générique pour remplacer le fragment en cours
     private void getFragment(Fragment fragment) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = manager.beginTransaction();
         fragmentTransaction.replace(R.id.container, fragment); // replace et pas add pour éviter les crashs
         fragmentTransaction.commit();
-
     }
 }
