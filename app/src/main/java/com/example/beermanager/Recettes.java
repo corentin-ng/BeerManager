@@ -108,8 +108,8 @@ public class Recettes extends Fragment implements View.OnClickListener {
         int id = v.getId();
         Intent intent;
         switch(id){
+            // Lancement du navigateur et ouverture du site brewdogrecipes.com pour sélectionner une recette
             case R.id.brewdogUrl:
-                // Lancement du navigateur et ouverture du site brewdogrecipes.com pour sélectionner une recette
                 Log.i(TAG, "on Click open Brewdog - " + getClass().getSimpleName());
                 // Le site est HS depuis le 12/01/2021 mais ça marchait avant :'(
                 Uri uri = Uri.parse("https://brewdogrecipes.com");
@@ -118,16 +118,13 @@ public class Recettes extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.recipes:
-                // Récupération de l'url de la recette collée par l'utilisateur
                 Log.i(TAG, "on Click Recipe - " + getClass().getSimpleName());
-
+                // Récupération de l'url de la recette collée par l'utilisateur
                 String urlRecette   = urlRecetteEditText.getText().toString();
 
                 Log.i(TAG, "on Click Recipe - getUrl : " + urlRecette);
-
                 // Préparation du fragment pour collecter et afficher la recette sélectionnée
                 Fragment AffichageRecette = new AffichageRecette();
-
                 // Passage de l'url de la recette au fragment
                 Bundle args = new Bundle();
                 if (urlRecette.equals("") ) {
@@ -136,21 +133,16 @@ public class Recettes extends Fragment implements View.OnClickListener {
                     // En fonctionnement normal, l'absence d'url n'ouvre pas le fragment
                     args.putString("urlRecette","fichierDemo");
                 }else {
+
                     args.putString("urlRecette", urlRecette);
                 }
                 AffichageRecette.setArguments(args);
-
                 // Lancement du fragment
-                FragmentManager manager = getParentFragmentManager();
+                FragmentManager manager =  getParentFragmentManager();
                 FragmentTransaction fragmentTransaction = manager.beginTransaction();
                 fragmentTransaction.replace(R.id.container,AffichageRecette);
                 fragmentTransaction.commit();
              break;
         }
- }
-
-
-
-
-
     }
+}
